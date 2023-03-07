@@ -2,5 +2,6 @@
     <string name="app_name">Chase-Weather</string>
     <string name="enter_city">Enter City</string>
     <string name="city_format">%s, %s</string>
+    <string name="fahrenheit_format">%s °F</string>
     <string name="generic_error_message">"Oops..Something went wrong."</string>
 </resources>

@@ -27,13 +27,8 @@ class MainActivityViewModel @Inject constructor(private val dataRepository: Data
                 dataRepository.getWeatherConditionsByLatLong(lat = city.lat, lon = city.lon)) {
                 is DataRepoResult.Error -> {
                     _uiState.value = UiState.Error(weatherResponse.exception.toString())
-                    Log.e(
-                        TAG,
-                        "getWeatherConditionsForCity: Result Error ${weatherResponse.exception}"
-                    )
                 }
                 is DataRepoResult.Success -> {
-                    Log.d(TAG, "getWeatherConditionsForCity: resposne :: ${weatherResponse.data}")
                     _uiState.value =
                         UiState.WeatherResponseSuccess(weatherResponse = weatherResponse.data)
                 }

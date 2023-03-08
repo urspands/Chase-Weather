@@ -10,6 +10,7 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.swiperefreshlayout.widget.CircularProgressDrawable
 import com.bumptech.glide.Glide
 import com.raj.chase.R
 import com.raj.chase.adapter.CityListAdapter
@@ -72,18 +73,30 @@ class MainActivity : AppCompatActivity() {
         _viewModel.uiState.observe(this) { uiState ->
             when (uiState) {
                 is UiState.CitySearchSuccess -> {
+                    Log.d(TAG, "searchCity: response :: ${uiState.cities}")
                     cityListAdapter.setValues(uiState.cities)
                     showSearchResults(true)
                 }
-                is UiState.Error -> Toast.makeText(
-                    this,
-                    R.string.generic_error_message,
-                    Toast.LENGTH_LONG
-                ).show()
+                is UiState.Error -> {
+                    Log.e(
+                        TAG,
+                        "Result Error ${uiState.message}"
+                    )
+                    _binding.progressCircular.visibility = View.GONE
+                    Toast.makeText(
+                        this,
+                        R.string.generic_error_message,
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
                 UiState.Loading -> {
                     _binding.progressCircular.visibility = View.VISIBLE
                 }
                 is UiState.WeatherResponseSuccess -> {
+                    Log.d(
+                        TAG,
+                        "getWeatherConditionsForCity: response :: ${uiState.weatherResponse}"
+                    )
                     bindWeatherData(uiState.weatherResponse)
                     showSearchResults(false)
                 }
@@ -105,8 +118,16 @@ class MainActivity : AppCompatActivity() {
         _binding.weatherConditionLayout.temperature.text =
             getString(R.string.fahrenheit_format, weatherResponse.main.temp.toInt().toString())
         Glide.with(this).load(getIconUrl(weatherResponse.weather[0].icon))
+            .placeholder(getProgress())
             .into(_binding.weatherConditionLayout.weatherImage)
     }
+
+    private fun getProgress() = CircularProgressDrawable(this).apply {
+        strokeWidth = 5f
+        centerRadius = 30f
+        start()
+    }
+
 
     private fun getIconUrl(icon: String): String {
         return WEATHER_IMAGE_URL.plus(icon).plus(WEATHER_IMAGE_SIZE).plus(WEATHER_IMAGE_FORMAT)

@@ -10,7 +10,7 @@
         android:id="@+id/citySearch"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="16dp"
+        android:layout_margin="@dimen/default_margin"
         android:backgroundTint="@android:color/holo_blue_dark"
         android:focusable="true"
         android:focusableInTouchMode="true"
@@ -22,8 +22,8 @@
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="16dp"
-        android:layout_marginRight="16dp"
+        android:layout_marginLeft="@dimen/default_margin"
+        android:layout_marginRight="@dimen/default_margin"
         app:layout_constraintTop_toBottomOf="@+id/citySearch" />
 
     <include
@@ -31,8 +31,8 @@
         layout="@layout/weather_condition_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="16dp"
-        android:layout_marginRight="16dp"
+        android:layout_marginLeft="@dimen/default_margin"
+        android:layout_marginRight="@dimen/default_margin"
         app:layout_constraintTop_toBottomOf="@+id/citySearch" />
 
     <ProgressBar

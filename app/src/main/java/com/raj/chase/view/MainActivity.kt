@@ -255,9 +255,7 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    private fun getIconUrl(icon: String): String {
-        return WEATHER_IMAGE_URL.plus(icon).plus(WEATHER_IMAGE_SIZE).plus(WEATHER_IMAGE_FORMAT)
-    }
+
 
     override fun onStop() {
         Log.d(TAG, "onStop: ")
@@ -271,5 +269,9 @@ class MainActivity : AppCompatActivity() {
         const val WEATHER_IMAGE_SIZE = "@2x"
         const val WEATHER_IMAGE_FORMAT = ".png"
         const val LOCATION_PERMISSION_ID = 16
+        //TODO: Move this function to helper class
+        fun getIconUrl(icon: String): String {
+            return WEATHER_IMAGE_URL.plus(icon).plus(WEATHER_IMAGE_SIZE).plus(WEATHER_IMAGE_FORMAT)
+        }
     }
 }

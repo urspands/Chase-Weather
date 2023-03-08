@@ -26,12 +26,21 @@ class MainActivityViewModel @Inject constructor(private val dataRepository: Data
     private var _currentCity: MutableLiveData<CitySearchResponseItem> = MutableLiveData()
     val currentCity: LiveData<CitySearchResponseItem> = _currentCity
 
+    val citySearchFieldState = MutableLiveData("")
+    fun onCitySearchTextChanged(newText: String) {
+        if (newText != citySearchFieldState.value) {
+            citySearchFieldState.value = newText
+            searchCity(newText.trim())
+        }
+    }
+
     /** loads the weather condition for the city
      * @param city CitySearchResponseItem
      */
     fun getWeatherConditionsForCity(city: CitySearchResponseItem) {
         _uiState.value = UiState.Loading
         _currentCity.value = city
+        citySearchFieldState.value = city.name.plus(", ").plus(city.state)
         viewModelScope.launch {
             when (val weatherResponse =
                 dataRepository.getWeatherConditionsByLatLong(lat = city.lat, lon = city.lon)) {
@@ -39,6 +48,7 @@ class MainActivityViewModel @Inject constructor(private val dataRepository: Data
                     _uiState.value = UiState.Error(weatherResponse.exception.toString())
                 }
                 is DataRepoResult.Success -> {
+                    Log.d(TAG, "getWeatherConditionsForCity: ${weatherResponse.data}")
                     _uiState.value =
                         UiState.WeatherResponseSuccess(weatherResponse = weatherResponse.data)
                 }
@@ -60,7 +70,7 @@ class MainActivityViewModel @Inject constructor(private val dataRepository: Data
                         Log.e(TAG, "searchCity: Result Error ${response.exception}")
                     }
                     is DataRepoResult.Success -> {
-
+                        Log.d(TAG, "searchCity: ${response.data}")
                         _uiState.value =
                             UiState.CitySearchSuccess(response.data)
                     }

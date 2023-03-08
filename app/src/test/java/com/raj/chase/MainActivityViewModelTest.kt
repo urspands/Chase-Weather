@@ -15,8 +15,8 @@ import org.junit.rules.TestRule
 import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.Mockito
+import org.mockito.Mockito.never
 import org.mockito.junit.MockitoJUnitRunner
-import java.lang.Exception
 
 @ExperimentalCoroutinesApi
 @RunWith(MockitoJUnitRunner::class)
@@ -131,7 +131,6 @@ class MainActivityViewModelTest {
     @Test
     fun testFailureResponseForGettingWeatherConditions() {
         val city = getMockCity()
-        val weatherResponse = getMockWeatherResponse()
         val exception = Exception("Something Went wrong.")
         testCoroutineRule.runBlockingTest {
             Mockito.`when`(repository.getWeatherConditionsByLatLong(lat = city.lat, lon = city.lon))
@@ -155,6 +154,78 @@ class MainActivityViewModelTest {
         viewModel.uiState.removeObserver(uiStateObserver)
 
     }
+
+    @Test
+    fun testSaveCurrentCityWhenCityIsNull() {
+        val viewModel = MainActivityViewModel(repository)
+        viewModel.saveCurrentCity()
+        runBlocking {
+            Mockito.verifyNoInteractions(repository)
+        }
+    }
+
+    @Test
+    fun testSaveCurrentCityWhenCityIsNotNull() {
+        val city = getMockCity()
+        val weatherResponse = getMockWeatherResponse()
+        testCoroutineRule.runBlockingTest {
+            Mockito.`when`(repository.getWeatherConditionsByLatLong(lat = city.lat, lon = city.lon))
+                .thenReturn(
+                    DataRepoResult.Success(
+                        weatherResponse
+                    )
+                )
+        }
+        val viewModel = MainActivityViewModel(repository)
+        viewModel.getWeatherConditionsForCity(city)
+        viewModel.saveCurrentCity()
+
+        runBlocking {
+            Mockito.verify(repository).saveCityToPersistence(city)
+        }
+    }
+
+    @Test
+    fun testLoadLastKnownCityWeatherWhenCityIsNull() {
+        testCoroutineRule.runBlockingTest {
+            Mockito.`when`(repository.getCityFromPersistence())
+                .thenReturn(
+                    null
+                )
+        }
+        val viewModel = MainActivityViewModel(repository)
+        viewModel.loadLastKnownCityWeather()
+        runBlocking {
+            val city = getMockCity()
+            Mockito.verify(repository, never()).getWeatherConditionsByLatLong(city.lat, city.lon)
+        }
+    }
+
+    @Test
+    fun testLoadLastKnownCityWeatherWhenCityIsNotNull() {
+        val city = getMockCity()
+        testCoroutineRule.runBlockingTest {
+            Mockito.`when`(repository.getCityFromPersistence())
+                .thenReturn(
+                    city
+                )
+        }
+        val weatherResponse = getMockWeatherResponse()
+        testCoroutineRule.runBlockingTest {
+            Mockito.`when`(repository.getWeatherConditionsByLatLong(lat = city.lat, lon = city.lon))
+                .thenReturn(
+                    DataRepoResult.Success(
+                        weatherResponse
+                    )
+                )
+        }
+        val viewModel = MainActivityViewModel(repository)
+        viewModel.loadLastKnownCityWeather()
+        runBlocking {
+            Mockito.verify(repository).getWeatherConditionsByLatLong(city.lat, city.lon)
+        }
+    }
+
 
     private fun getMockCity() = CitySearchResponseItem(
         country = "US",

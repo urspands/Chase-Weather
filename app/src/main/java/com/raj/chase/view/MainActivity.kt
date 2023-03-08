@@ -43,6 +43,7 @@ class MainActivity : AppCompatActivity() {
         _binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(_binding.root)
         _binding.progressCircular.visibility = View.GONE
+        _binding.weatherConditionLayout.weatherCard.visibility = View.GONE
         _binding.citySearch.setOnFocusChangeListener { _, focus ->
             Log.d(TAG, "onCreate: City Search Focus::$focus")
             if (focus) {
@@ -107,7 +108,8 @@ class MainActivity : AppCompatActivity() {
 
     private fun showSearchResults(show: Boolean) {
         _binding.recyclerView.visibility = if (show) View.VISIBLE else View.GONE
-        _binding.weatherConditionLayout.root.visibility = if (!show) View.VISIBLE else View.GONE
+        _binding.weatherConditionLayout.weatherCard.visibility =
+            if (!show) View.VISIBLE else View.GONE
         _binding.progressCircular.visibility = View.GONE
 
     }

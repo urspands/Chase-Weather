@@ -130,22 +130,21 @@ class MainActivity : AppCompatActivity() {
         _viewModel.loadLastKnownCityWeather()
     }
 
-    private fun checkPermissions(): Boolean {
-        return ActivityCompat.checkSelfPermission(
+    private fun isLocationPermissionGranted() =
+        ActivityCompat.checkSelfPermission(
             this,
             Manifest.permission.ACCESS_COARSE_LOCATION
         ) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
             this,
             Manifest.permission.ACCESS_FINE_LOCATION
         ) == PackageManager.PERMISSION_GRANTED
-    }
 
 
     private fun getCurrentLocation() {
-        if (checkPermissions()) {
+        if (isLocationPermissionGranted()) {
             getLocationAndLoadWeatherData()
         } else {
-            requestPermissions()
+            requestLocationPermissions()
         }
     }
 
@@ -195,7 +194,7 @@ class MainActivity : AppCompatActivity() {
         )
     }
 
-    private fun requestPermissions() {
+    private fun requestLocationPermissions() {
         ActivityCompat.requestPermissions(
             this, arrayOf(
                 Manifest.permission.ACCESS_COARSE_LOCATION,

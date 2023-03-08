@@ -5,4 +5,8 @@
     <string name="fahrenheit_format">%s °F</string>
     <string name="generic_error_message">"Oops..Something went wrong."</string>
     <string name="weather_icon">Weather Icon</string>
+    <string name="permission_granted">Permission Granted</string>
+    <string name="permission_denied">Permission Denied</string>
+    <string name="turn_on_location_msg">Please turn on your location.</string>
+    <string name="current_location_icon">Current location icon</string>
 </resources>

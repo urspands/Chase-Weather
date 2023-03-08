@@ -21,12 +21,24 @@ class MainActivityViewModel @Inject constructor(private val dataRepository: Data
     val uiState: LiveData<UiState> = _uiState
 
     fun getWeatherConditionsForCity(city: CitySearchResponseItem) {
-           viewModelScope.launch {
-           }
+        _uiState.value = UiState.Loading
+        viewModelScope.launch {
+            when (val weatherResponse =
+                dataRepository.getWeatherConditionsByLatLong(lat = city.lat, lon = city.lon)) {
+                is DataRepoResult.Error -> {
+                    _uiState.value = UiState.Error(weatherResponse.exception.toString())
+                }
+                is DataRepoResult.Success -> {
+                    _uiState.value =
+                        UiState.WeatherResponseSuccess(weatherResponse = weatherResponse.data)
+                }
+            }
+        }
     }
 
     fun searchCity(cityName: String) {
         if (cityName.length >= SEARCH_MIN_LENGTH) {
+            _uiState.value = UiState.Loading
             viewModelScope.launch {
                 when (val response =
                     dataRepository.getCitySearchResults("$cityName, $US_COUNTRY_CODE")) {

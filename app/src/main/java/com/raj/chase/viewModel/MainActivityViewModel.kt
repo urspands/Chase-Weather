@@ -13,15 +13,25 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+/**
+ * view model class for the Main activity and has functions to supports the operations for the MainActivity
+ * @param dataRepository Data Repository object
+ */
 @HiltViewModel
 class MainActivityViewModel @Inject constructor(private val dataRepository: DataRepository) :
     ViewModel() {
 
     private val _uiState: MutableLiveData<UiState> = MutableLiveData()
     val uiState: LiveData<UiState> = _uiState
+    private var _currentCity: MutableLiveData<CitySearchResponseItem> = MutableLiveData()
+    val currentCity: LiveData<CitySearchResponseItem> = _currentCity
 
+    /** loads the weather condition for the city
+     * @param city CitySearchResponseItem
+     */
     fun getWeatherConditionsForCity(city: CitySearchResponseItem) {
         _uiState.value = UiState.Loading
+        _currentCity.value = city
         viewModelScope.launch {
             when (val weatherResponse =
                 dataRepository.getWeatherConditionsByLatLong(lat = city.lat, lon = city.lon)) {
@@ -36,6 +46,9 @@ class MainActivityViewModel @Inject constructor(private val dataRepository: Data
         }
     }
 
+    /** Gets the matching geocoded city name in US
+     *  @param cityName city name to search
+     */
     fun searchCity(cityName: String) {
         if (cityName.length >= SEARCH_MIN_LENGTH) {
             _uiState.value = UiState.Loading
@@ -46,9 +59,35 @@ class MainActivityViewModel @Inject constructor(private val dataRepository: Data
                         _uiState.value = UiState.Error(response.exception.toString())
                         Log.e(TAG, "searchCity: Result Error ${response.exception}")
                     }
-                    is DataRepoResult.Success -> _uiState.value =
-                        UiState.CitySearchSuccess(response.data)
+                    is DataRepoResult.Success -> {
+
+                        _uiState.value =
+                            UiState.CitySearchSuccess(response.data)
+                    }
                 }
+            }
+        }
+    }
+
+    /**
+     * save the current City to the persistence for later retrieval.
+     */
+    fun saveCurrentCity() {
+        viewModelScope.launch {
+            _currentCity.value?.let {
+                dataRepository.saveCityToPersistence(it)
+            }
+        }
+    }
+
+    /**
+     * loads the last known city and its weather conditions.
+     */
+    fun loadLastKnownCityWeather() {
+        viewModelScope.launch {
+            val citySearchResponseItem = dataRepository.getCityFromPersistence()
+            citySearchResponseItem?.let {
+                getWeatherConditionsForCity(it)
             }
         }
     }

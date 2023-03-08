@@ -7,6 +7,10 @@ import com.raj.chase.R
 import com.raj.chase.api.CitySearchResponseItem
 import com.raj.chase.databinding.ListItemBinding
 
+/**
+ * CityListAdapter is a recycler view adapter to list the cities
+ * @param onCitySelected ()function to call on city list item click
+ */
 class CityListAdapter(private val onCitySelected: (CitySearchResponseItem) -> Unit) :
     RecyclerView.Adapter<CityListAdapter.ItemViewHolder>() {
 

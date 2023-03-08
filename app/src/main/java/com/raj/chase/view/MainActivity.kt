@@ -54,7 +54,6 @@ class MainActivity : AppCompatActivity() {
             CityListAdapter { city ->
                 _binding.citySearch.removeTextChangedListener(textChangeListener)
                 (_binding.recyclerView.adapter as CityListAdapter).clearValues()
-                _binding.citySearch.setText(getString(R.string.city_format, city.name, city.state))
                 _binding.citySearch.clearFocus()
                 _viewModel.getWeatherConditionsForCity(city)
             }
@@ -103,6 +102,10 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+        _viewModel.currentCity.observe(this) { city ->
+            _binding.citySearch.setText(getString(R.string.city_format, city.name, city.state))
+        }
+        _viewModel.loadLastKnownCityWeather()
 
     }
 
@@ -133,6 +136,16 @@ class MainActivity : AppCompatActivity() {
 
     private fun getIconUrl(icon: String): String {
         return WEATHER_IMAGE_URL.plus(icon).plus(WEATHER_IMAGE_SIZE).plus(WEATHER_IMAGE_FORMAT)
+    }
+
+    override fun onStop() {
+        Log.d(TAG, "onStop: ")
+        _viewModel.saveCurrentCity()
+        super.onStop()
+    }
+    override fun onDestroy() {
+        Log.d(TAG, "onDestroy: called")
+        super.onDestroy()
     }
 
     companion object {

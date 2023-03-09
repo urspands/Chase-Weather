@@ -1,5 +1,7 @@
 package com.raj.chase.view
 
+import android.Manifest
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
@@ -22,8 +24,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
 import coil.annotation.ExperimentalCoilApi
 import coil.compose.rememberImagePainter
+import com.raj.chase.LocationHelper
 import com.raj.chase.R
 import com.raj.chase.api.CitySearchResponseItem
 import com.raj.chase.api.WeatherResponse
@@ -33,6 +37,7 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class MainComposeActivity : ComponentActivity() {
     private val _viewModel: MainActivityViewModel by viewModels()
+    private lateinit var _locationHelper: LocationHelper
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -41,6 +46,7 @@ class MainComposeActivity : ComponentActivity() {
                 color = MaterialTheme.colors.background
             ) { MainScreen(getString(R.string.enter_city)) }
         }
+        _locationHelper = LocationHelper(this)
         _viewModel.loadLastKnownCityWeather()
     }
 
@@ -48,6 +54,35 @@ class MainComposeActivity : ComponentActivity() {
         Log.d(MainActivity.TAG, "onStop: ")
         _viewModel.saveCurrentCity()
         super.onStop()
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int, permissions: Array<String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        when (requestCode) {
+            MainActivity.LOCATION_PERMISSION_ID -> {
+                if (grantResults.isNotEmpty() && grantResults[0] ==
+                    PackageManager.PERMISSION_GRANTED
+                ) {
+                    if ((ContextCompat.checkSelfPermission(
+                            this@MainComposeActivity,
+                            Manifest.permission.ACCESS_FINE_LOCATION
+                        ) ==
+                                PackageManager.PERMISSION_GRANTED)
+                    ) {
+                        Toast.makeText(this, R.string.permission_granted, Toast.LENGTH_SHORT).show()
+                        _locationHelper.getLocationAndLoadWeatherData() {
+                            _viewModel.getWeatherConditionsForCity(it)
+                        }
+                    }
+                } else {
+                    Toast.makeText(this, R.string.permission_denied, Toast.LENGTH_SHORT).show()
+                }
+                return
+            }
+        }
     }
 
     @Composable
@@ -68,11 +103,17 @@ class MainComposeActivity : ComponentActivity() {
                         _viewModel.onCitySearchTextChanged(it)
                     },
                     placeholder = { Text(text = cityHint) },
-
+                    modifier = Modifier.fillMaxWidth(.85f)
                     )
                 IconButton(
-                    onClick = {},
-                    modifier = Modifier.padding(start = padding, end = padding)
+                    onClick = {
+                        _locationHelper.getCurrentLocation {
+                            _viewModel.getWeatherConditionsForCity(
+                                it
+                            )
+                        }
+                    },
+                    modifier = Modifier.padding()
                         .then(Modifier.size(dimensionResource(R.dimen.location_icon_size)))
                         .then(Modifier.align(alignment = Alignment.CenterVertically)),
 

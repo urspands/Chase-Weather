@@ -1,6 +1,5 @@
 package com.raj.chase.viewModel
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -48,7 +47,6 @@ class MainActivityViewModel @Inject constructor(private val dataRepository: Data
                     _uiState.value = UiState.Error(weatherResponse.exception.toString())
                 }
                 is DataRepoResult.Success -> {
-                    Log.d(TAG, "getWeatherConditionsForCity: ${weatherResponse.data}")
                     _uiState.value =
                         UiState.WeatherResponseSuccess(weatherResponse = weatherResponse.data)
                 }
@@ -67,10 +65,8 @@ class MainActivityViewModel @Inject constructor(private val dataRepository: Data
                     dataRepository.getCitySearchResults("$cityName, $US_COUNTRY_CODE")) {
                     is DataRepoResult.Error -> {
                         _uiState.value = UiState.Error(response.exception.toString())
-                        Log.e(TAG, "searchCity: Result Error ${response.exception}")
                     }
                     is DataRepoResult.Success -> {
-                        Log.d(TAG, "searchCity: ${response.data}")
                         _uiState.value =
                             UiState.CitySearchSuccess(response.data)
                     }

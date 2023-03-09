@@ -6,15 +6,54 @@
     android:layout_height="match_parent"
     tools:context=".view.MainActivity">
 
+    <EditText
+        android:id="@+id/citySearch"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/default_margin"
+        android:layout_marginTop="@dimen/default_margin"
+        android:layout_marginEnd="48dp"
+        android:layout_marginBottom="@dimen/default_margin"
+        android:backgroundTint="@android:color/holo_blue_dark"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:hint="@string/enter_city"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/currentLocation"
+        android:contentDescription="@string/current_location_icon"
+        android:layout_width="@dimen/location_icon_size"
+        android:layout_height="@dimen/location_icon_size"
+        android:layout_marginTop="@dimen/default_margin"
+        android:layout_marginEnd="@dimen/default_margin"
+        android:layout_marginBottom="@dimen/default_margin"
+        android:src="@android:drawable/ic_menu_mylocation"
+        app:layout_constraintLeft_toRightOf="@+id/citySearch"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/default_margin"
+        android:layout_marginRight="@dimen/default_margin"
+        app:layout_constraintTop_toBottomOf="@+id/citySearch" />
 
-    <TextView
+    <include
+        android:id="@+id/weatherConditionLayout"
+        layout="@layout/weather_condition_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/default_margin"
+        android:layout_marginRight="@dimen/default_margin"
+        app:layout_constraintTop_toBottomOf="@+id/citySearch" />
+
+    <ProgressBar
+        android:id="@+id/progress_circular"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Hello World!"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"

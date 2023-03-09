@@ -1,6 +1,5 @@
 package com.raj.chase.viewModel
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -26,12 +25,21 @@ class MainActivityViewModel @Inject constructor(private val dataRepository: Data
     private var _currentCity: MutableLiveData<CitySearchResponseItem> = MutableLiveData()
     val currentCity: LiveData<CitySearchResponseItem> = _currentCity
 
+    val citySearchFieldState = MutableLiveData("")
+    fun onCitySearchTextChanged(newText: String) {
+        if (newText != citySearchFieldState.value) {
+            citySearchFieldState.value = newText
+            searchCity(newText.trim())
+        }
+    }
+
     /** loads the weather condition for the city
      * @param city CitySearchResponseItem
      */
     fun getWeatherConditionsForCity(city: CitySearchResponseItem) {
         _uiState.value = UiState.Loading
         _currentCity.value = city
+        citySearchFieldState.value = city.name.plus(", ").plus(city.state)
         viewModelScope.launch {
             when (val weatherResponse =
                 dataRepository.getWeatherConditionsByLatLong(lat = city.lat, lon = city.lon)) {
@@ -57,10 +65,8 @@ class MainActivityViewModel @Inject constructor(private val dataRepository: Data
                     dataRepository.getCitySearchResults("$cityName, $US_COUNTRY_CODE")) {
                     is DataRepoResult.Error -> {
                         _uiState.value = UiState.Error(response.exception.toString())
-                        Log.e(TAG, "searchCity: Result Error ${response.exception}")
                     }
                     is DataRepoResult.Success -> {
-
                         _uiState.value =
                             UiState.CitySearchSuccess(response.data)
                     }

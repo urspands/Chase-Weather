@@ -33,7 +33,7 @@ class LocationHelper(private val context: Activity) {
      */
     fun getCurrentLocation(block: (city: CitySearchResponseItem) -> Unit) {
         if (isLocationPermissionGranted()) {
-            getLocationAndLoadWeatherData() {
+            getLocationAndLoadWeatherData {
                 block(it)
             }
         } else {

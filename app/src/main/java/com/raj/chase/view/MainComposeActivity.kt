@@ -104,7 +104,7 @@ class MainComposeActivity : ComponentActivity() {
                     },
                     placeholder = { Text(text = cityHint) },
                     modifier = Modifier.fillMaxWidth(.85f)
-                    )
+                )
                 IconButton(
                     onClick = {
                         _locationHelper.getCurrentLocation {
@@ -142,7 +142,7 @@ class MainComposeActivity : ComponentActivity() {
                     WeatherCard((uiState.value as UiState.WeatherResponseSuccess).weatherResponse)
                 }
                 null -> {
-//
+                    // TODO: Error handling
                 }
             }
 

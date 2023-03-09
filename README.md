@@ -1,2 +1,22 @@
 # Chase-WeatherApp
-Android app Skeleton 
+Chase Weather App is developed using Kotlin language and MVVM design pattern. This app makes api calls to openweathermap.org to get the weather conditions for a specified city.
+ - Features
+   - Search for city in US
+   - Get current weather conditions for the selected city
+   - Last known city is cached and when we relaunch the application, the weather conditions for the last known city is loaded
+   - User can get weather conditions for his local city using the current location icon. Once all location permissions are satisfied,the data is loaded
+ - Jetpack Compose
+   - We have to screens for this app:
+     - MainActivity - By default when we run the app, the app launches the MainActivity which uses the xml layout to load the screen
+     - MainComposeActivity - To launch this screen, edit app configuration and in Launch options select Specified Activity to Launch and then select MainComposeActivity, Apply and click okay.Now run the app from Android Studio to launch the Compose UI
+ - Libraries Used
+   - Retrofit - for network api calls
+   - Coil - image loader and cache for compose UI
+   - Glide - image loader and cache for Imageview
+   - Livedata - for saving UI state on configuration changes
+   - Corounties - for launching suspending calls to perform tasks in another thread
+   - Hilt - for Dependency Injection
+   - Mockito - for Unit testing the viewModel class
+ - Limitations
+   - Error handling for getting location when running in emulator is not handled.
+   - Request for new location Data on location updated or on intervals is not implemented.

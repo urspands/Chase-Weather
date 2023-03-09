@@ -29,7 +29,6 @@ class MainActivity : AppCompatActivity() {
     private val _viewModel: MainActivityViewModel by viewModels()
     private lateinit var _binding: ActivityMainBinding
 
-    //    private lateinit var _fusedLocationClient: FusedLocationProviderClient
     private lateinit var _locationHelper: LocationHelper
     private val textChangeListener = object : TextWatcher {
         override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {

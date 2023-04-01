@@ -11,6 +11,7 @@ import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.swiperefreshlayout.widget.CircularProgressDrawable
@@ -22,6 +23,7 @@ import com.raj.chase.api.WeatherResponse
 import com.raj.chase.databinding.ActivityMainBinding
 import com.raj.chase.viewModel.MainActivityViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.*
 
 
 @AndroidEntryPoint
@@ -40,7 +42,8 @@ class MainActivity : AppCompatActivity() {
         }
 
         override fun afterTextChanged(p0: Editable?) {
-            _viewModel.searchCity(p0?.toString()?.trim() ?: "")
+//            _viewModel.searchCity(p0?.toString()?.trim() ?: "")
+            _viewModel.onCitySearchTextChanged(p0?.toString()?.trim() ?: "")
         }
     }
 
@@ -58,7 +61,7 @@ class MainActivity : AppCompatActivity() {
         }
         _binding.currentLocation.setOnClickListener {
             _locationHelper.getCurrentLocation {
-                _viewModel.getWeatherConditionsForCity(it)
+                _viewModel.onCitySelected(it)
             }
         }
         _locationHelper = LocationHelper(this)
@@ -67,7 +70,7 @@ class MainActivity : AppCompatActivity() {
                 _binding.citySearch.removeTextChangedListener(textChangeListener)
                 (_binding.recyclerView.adapter as CityListAdapter).clearValues()
                 _binding.citySearch.clearFocus()
-                _viewModel.getWeatherConditionsForCity(city)
+                _viewModel.onCitySelected(city)
             }
 
         _binding.recyclerView.apply {
@@ -119,6 +122,49 @@ class MainActivity : AppCompatActivity() {
         }
 
         _viewModel.loadLastKnownCityWeather()
+//        val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
+//            Log.e(TAG, "onCreate: exceptionHandler ${throwable.toString()}")
+//        }
+//        lifecycleScope.launch(Dispatchers.IO + exceptionHandler) {
+//            supervisorScope {
+//                val task1 = async {
+//                    try {
+//                        throw java.lang.RuntimeException()
+//                    }
+//                    catch (e:Exception){
+//                        Log.e(TAG, "onCreate: async block::$e", )
+//                    }
+//                }
+//                val task2 = async { throw java.lang.NullPointerException() }
+//                try {
+//                    val test = task1.await()
+//                } catch (e: Exception) {
+//                    Log.e(TAG, "onCreate: task1 failed ${e.toString()}")
+//                }
+//                Log.d(TAG, "onCreate: isActive::$isActive")
+//                try {
+//                    task2.await()
+//                } catch (e: Exception) {
+//                    Log.e(TAG, "onCreate: task2 failed ${e.toString()}")
+//                }
+//                Log.d(TAG, "onCreate: task 2 finished")
+//                launch {
+//                    try {
+//                        throw java.lang.RuntimeException()
+//                    }catch (e: Exception) {
+//                    Log.e(TAG, "onCreate: launch failed ${e.toString()}")
+//                }
+//                    val task2 = async { throw java.lang.NullPointerException() }
+//                    try {
+//                        task2.await()
+//                    } catch (e: Exception) {
+//                        Log.e(TAG, "onCreate: task2 failed ${e.toString()}")
+//                    }
+//                    Log.d(TAG, "onCreate: task 2 finished")
+//                }
+
+//            }
+//        }
     }
 
 
@@ -140,7 +186,7 @@ class MainActivity : AppCompatActivity() {
                     ) {
                         Toast.makeText(this, R.string.permission_granted, Toast.LENGTH_SHORT).show()
                         _locationHelper.getLocationAndLoadWeatherData() {
-                            _viewModel.getWeatherConditionsForCity(it)
+                            _viewModel.onCitySelected(it)
                         }
                     }
                 } else {
@@ -180,6 +226,37 @@ class MainActivity : AppCompatActivity() {
         Log.d(TAG, "onStop: ")
         _viewModel.saveCurrentCity()
         super.onStop()
+    }
+
+    override fun onDestroy() {
+        Log.d(TAG, "onDestroy: ")
+        super.onDestroy()
+    }
+
+    override fun finish() {
+        Log.d(TAG, "finish: ")
+        super.finish()
+        
+    }
+
+    override fun onPause() {
+        Log.d(TAG, "onPause: ")
+        super.onPause()
+    }
+
+    override fun onStart() {
+        Log.d(TAG, "onStart: ")
+        super.onStart()
+    }
+
+    override fun onResume() {
+        Log.d(TAG, "onResume: ")
+        super.onResume()
+    }
+
+    override fun onRestart() {
+        Log.d(TAG, "onRestart: ")
+        super.onRestart()
     }
 
     companion object {

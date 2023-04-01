@@ -74,7 +74,7 @@ class MainComposeActivity : ComponentActivity() {
                     ) {
                         Toast.makeText(this, R.string.permission_granted, Toast.LENGTH_SHORT).show()
                         _locationHelper.getLocationAndLoadWeatherData() {
-                            _viewModel.getWeatherConditionsForCity(it)
+                            _viewModel.onCitySelected(it)
                         }
                     }
                 } else {
@@ -108,7 +108,7 @@ class MainComposeActivity : ComponentActivity() {
                 IconButton(
                     onClick = {
                         _locationHelper.getCurrentLocation {
-                            _viewModel.getWeatherConditionsForCity(
+                            _viewModel.onCitySelected(
                                 it
                             )
                         }
@@ -207,7 +207,7 @@ class MainComposeActivity : ComponentActivity() {
 
     @Composable
     fun CityListItem(city: CitySearchResponseItem) {
-        TextButton(onClick = { _viewModel.getWeatherConditionsForCity(city) }) {
+        TextButton(onClick = { _viewModel.onCitySelected(city) }) {
             Text(
                 text = stringResource(R.string.city_format, city.name, city.state),
                 modifier = Modifier.fillMaxWidth().wrapContentHeight()

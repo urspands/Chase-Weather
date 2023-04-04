@@ -1,9 +1,7 @@
 package com.raj.chase.viewModel
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import android.util.Log
+import androidx.lifecycle.*
 import com.raj.chase.api.CitySearchResponseItem
 import com.raj.chase.repository.DataRepoResult
 import com.raj.chase.repository.DataRepository
@@ -19,60 +17,81 @@ import javax.inject.Inject
 @HiltViewModel
 class MainActivityViewModel @Inject constructor(private val dataRepository: DataRepository) :
     ViewModel() {
-
-    private val _uiState: MutableLiveData<UiState> = MutableLiveData()
-    val uiState: LiveData<UiState> = _uiState
+    val citySearchFieldState = MutableLiveData("")
+    private val _uiCityState = citySearchFieldState.switchMap { searchCity(it.trim()) }
     private var _currentCity: MutableLiveData<CitySearchResponseItem> = MutableLiveData()
+    private val _uiWeatherState = _currentCity.switchMap { getWeatherConditionsForCity(it) }
+    val uiState: MediatorLiveData<UiState> = MediatorLiveData()
+
     val currentCity: LiveData<CitySearchResponseItem> = _currentCity
 
-    val citySearchFieldState = MutableLiveData("")
+    init {
+        uiState.addSource(_uiCityState) { city ->
+            uiState.value = city
+        }
+        uiState.addSource(_uiWeatherState) { weather ->
+            uiState.value = weather
+        }
+    }
+
     fun onCitySearchTextChanged(newText: String) {
         if (newText != citySearchFieldState.value) {
             citySearchFieldState.value = newText
-            searchCity(newText.trim())
+//            searchCity(newText.trim())
         }
+    }
+
+    fun onCitySelected(city: CitySearchResponseItem) {
+        _currentCity.value = city
     }
 
     /** loads the weather condition for the city
      * @param city CitySearchResponseItem
      */
-    fun getWeatherConditionsForCity(city: CitySearchResponseItem) {
-        _uiState.value = UiState.Loading
-        _currentCity.value = city
-        citySearchFieldState.value = city.name.plus(", ").plus(city.state)
-        viewModelScope.launch {
+    fun getWeatherConditionsForCity(city: CitySearchResponseItem): LiveData<UiState> {
+        return liveData {
+            emit(UiState.Loading)
+
+            citySearchFieldState.value = city.name.plus(", ").plus(city.state)
+
             when (val weatherResponse =
                 dataRepository.getWeatherConditionsByLatLong(lat = city.lat, lon = city.lon)) {
                 is DataRepoResult.Error -> {
-                    _uiState.value = UiState.Error(weatherResponse.exception.toString())
+                    emit(UiState.Error(weatherResponse.exception.toString()))
                 }
                 is DataRepoResult.Success -> {
-                    _uiState.value =
+                    emit(
                         UiState.WeatherResponseSuccess(weatherResponse = weatherResponse.data)
+                    )
                 }
             }
+
         }
+
     }
 
     /** Gets the matching geocoded city name in US
      *  @param cityName city name to search
      */
-    fun searchCity(cityName: String) {
-        if (cityName.length >= SEARCH_MIN_LENGTH) {
-            _uiState.value = UiState.Loading
-            viewModelScope.launch {
+    fun searchCity(cityName: String): LiveData<UiState> {
+        return liveData<UiState> {
+            if (cityName.length >= SEARCH_MIN_LENGTH) {
+                emit(UiState.Loading)
                 when (val response =
                     dataRepository.getCitySearchResults("$cityName, $US_COUNTRY_CODE")) {
                     is DataRepoResult.Error -> {
-                        _uiState.value = UiState.Error(response.exception.toString())
+                        emit(UiState.Error(response.exception.toString()))
                     }
                     is DataRepoResult.Success -> {
-                        _uiState.value =
+                        emit(
                             UiState.CitySearchSuccess(response.data)
+                        )
                     }
                 }
+
             }
         }
+
     }
 
     /**
@@ -93,9 +112,14 @@ class MainActivityViewModel @Inject constructor(private val dataRepository: Data
         viewModelScope.launch {
             val citySearchResponseItem = dataRepository.getCityFromPersistence()
             citySearchResponseItem?.let {
-                getWeatherConditionsForCity(it)
+                onCitySelected(it)
             }
         }
+    }
+
+    override fun onCleared() {
+        Log.d(TAG, "onCleared: ")
+        super.onCleared()
     }
 
     companion object {

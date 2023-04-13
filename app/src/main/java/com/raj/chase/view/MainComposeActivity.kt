@@ -144,6 +144,9 @@ class MainComposeActivity : ComponentActivity() {
                 null -> {
                     // TODO: Error handling
                 }
+                is UiState.WeatherListResponseSuccess -> {
+
+                }
             }
 
         }

@@ -17,12 +17,14 @@ class DataRepositoryImpl(private val networkApi: NetworkApi) : DataRepository {
      * @return returns a list of cities
      */
     override suspend fun getCitySearchResults(city: String): DataRepoResult<CitySearchResponse> {
+
         return try {
             val response = networkApi.searchCity(city)
             DataRepoResult.Success(response)
-        } catch (e: java.lang.Exception) {
+        } catch (e: Exception) {
             DataRepoResult.Error(e)
         }
+//        return DataRepoResult.Error(java.lang.RuntimeException("Raj Exception"))
     }
 
     /** makes api call to server to get weather conditions for the lat and long passed
@@ -41,6 +43,7 @@ class DataRepositoryImpl(private val networkApi: NetworkApi) : DataRepository {
             DataRepoResult.Error(e)
         }
     }
+
 
     /** save the city to local persistence
      * @param city city to save

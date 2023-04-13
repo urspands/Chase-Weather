@@ -115,6 +115,9 @@ class MainActivity : AppCompatActivity() {
                     bindWeatherData(uiState.weatherResponse)
                     showSearchResults(false)
                 }
+                is UiState.WeatherListResponseSuccess -> {
+
+                }
             }
         }
         _viewModel.currentCity.observe(this) { city ->

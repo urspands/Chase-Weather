@@ -10,6 +10,9 @@ interface DataRepository {
         lat: Double,
         lon: Double
     ): DataRepoResult<WeatherResponse>
+
+
+
     suspend fun saveCityToPersistence(city: CitySearchResponseItem)
     suspend fun getCityFromPersistence(): CitySearchResponseItem?
 }
